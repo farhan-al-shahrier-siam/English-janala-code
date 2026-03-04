@@ -1,3 +1,8 @@
+const createElements = (arr) => {
+    const htmlElement = arr.map((el) => `<span class="bg-[#D7E4EF] px-3 py-2 rounded">${el}</span>`);
+    return htmlElement.join(" ");
+};
+
 const loadLessons = () => {
     fetch("https://openapi.programming-hero.com/api/levels/all") // gives promise of response
         .then((res) => res.json()) // Promise of json data
@@ -46,13 +51,45 @@ const displayLevelWord = (words) => {
                 <p class="font-semibold">Meaning /Pronounciation</p>
                 <div class="text-xl font-medium font-bangla">"${word.meaning ? word.meaning : "অর্থ পাওয়া যায়নি"} / ${word.pronunciation ? word.pronunciation : "Pronunciation পাওয়া যায়নি"}"</div>
                 <div class="flex justify-between items-center">
-                    <button class="btn rounded-full"><i class="fa-solid fa-circle-info"></i></button>
+                    <button onclick="loadWordDetails(${word.id})" class="btn rounded-full"><i class="fa-solid fa-circle-info"></i></button>
                     <button class="btn rounded-full"><i class="fa-solid fa-volume-high"></i></button>
                 </div>
             </div>
         `;
         wordContainer.appendChild(wordDiv);
     }
+};
+
+const loadWordDetails = async (id) => {
+    const url = `https://openapi.programming-hero.com/api/word/${id}`;
+    const res = await fetch(url);
+    const details = await res.json();
+    displayWordDetails(details.data);
+};
+
+const displayWordDetails = (word) => {
+    const detailsBox = document.getElementById("details-container");
+    detailsBox.innerHTML = `
+                
+                    <div>
+                        <h1 class="text-2xl font-bold">${word.word} (<i class="fa-solid fa-microphone-lines"></i> : ${word.pronunciation})</h1>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Meaning</h1>
+                        <p class="pt-2">${word.meaning}</p>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Example</h1>
+                        <p class="pt-2">${word.sentence}</p>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">সমর্থক শব্দ গুলো</h1>
+                        <div class="pt-3">
+                            ${createElements(word.synonyms)}
+                        </div>
+                    </div>
+    `;
+    document.getElementById("word_modal").showModal();
 };
 
 const displayLessons = (lessons) => {
